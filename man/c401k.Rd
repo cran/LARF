@@ -30,7 +30,7 @@ Cross-sectional data with 9,275 observations including 11 variables on eligibili
 Wooldridge, Jeffrey M. 2010. \emph{Econometric Analysis of Cross Section and Panel Data}. 2nd Edition. MIT Press.
 }
 \seealso{
-\code{\link{larf}}
+\code{\link{larf}}, \code{\link{larf.fit}}
 }
 \examples{
 data(c401k)

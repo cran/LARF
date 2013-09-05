@@ -1,26 +1,25 @@
-\name{larf}
-\alias{larf}
+\name{larf.fit}
+\alias{larf.fit}
 
 \title{Local Average Response Functions}
 \description{
-Provides instrumental variable estimation of treatment effects for compliers when the treatment variable is binary. Applicable to both binary and continuous outcomes.
+Provides instrumental variable estimation of treatment effects for compliers when both the treatment variable and instrumental variable are binary.
 }
 \usage{
-larf(formula, treatment, instrument, data, outcome = "binary", 
-      method = "NLS", discrete = TRUE)
+larf.fit(Y, X, D, Z, outcome, method, discrete)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{formula}{Formula specification of the regression of the outcome on the covariates in the form like either \code{y ~ x1 + x2} or \code{y ~ X} where \code{X} is the design matrix containing all the covariates excluding the treatment variable.}
-  \item{treatment}{A vector containing the binary treatment variable.}
-  \item{instrument}{A vector containing the binary instrumental variable, for example, the treatment assignment.}
-  \item{data}{An optional data frame including the corresponding data for the model. If not specified, the data will be taken from the current environment.}
-    \item{outcome}{A character string for the type of outcomes. The default is "binary". The other option is "continuous".}
+  \item{Y}{A vector containing the outcome variable. It can be either binary or continuous.}
+  \item{X}{A matrix containing the covariates.}
+  \item{D}{A vector containing the binary treatment variable.}
+  \item{Z}{A vector containing the binary instrumental variable, for example, the treatment assignment.}
+  \item{outcome}{A character string for the type of outcomes. The default is "binary". The other option is "continuous".}
   \item{method}{A character string for the estimation method to be used for binary outcome models. The default is "NLS", standing for nonlinear least squares. Maximum likelihood method (MLE) may be added in future versions.}
   \item{discrete}{A logical flag for whether marginal effects should be reported. The default is TRUE. This option is valid only for binary outcomes.}
 }
 \details{
-\code{larf} is the high-level interface to the work-horse function \code{\link{larf.fit}}. A set of standard methods (including \code{print}, \code{summary}, \code{coef}, \code{vcov}, \code{fitted}, \code{resid}, \code{predict}) can be used to extract the corresponding information from a \code{\link{larf}} object.
+\code{\link{larf.fit}} is the work-horse function for its high-level interface \code{larf}. A set of standard methods (including \code{print}, \code{summary}, \code{coef}, \code{vcov}, \code{fitted}, \code{resid}, \code{predict}) can be used to extract the corresponding information from a \code{\link{larf}} object.
 
 The function provides instrumental variable estimation of treatment effects when both the treatment variable and instrumental variable are binary. First, pseudo weights are constructed from a probit regression of the instrumental variable on covariates. Then, the weights are used in the regression of the outcome on the treatment and covariates. When the outcome is binary, weighted nonlinear least squares method with a probit link is used. When the outcome is continuous, weighted least squares is used. More details of the methods can be found in Abadie (2003).
 }
@@ -47,7 +46,7 @@ We derived part of the code from the Matlab code written by Professor Alberto Ab
 }
 
 \seealso{
-\code{\link{larf.fit}}, \code{\link{c401k}}
+\code{\link{larf}}, \code{\link{c401k}}
 }
 
 \examples{

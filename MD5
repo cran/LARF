@@ -1,7 +1,11 @@
-3322f969e2b6c9b7d8416f3d450c3fa1 *DESCRIPTION
+c0b653c7c658731e2a5cfad9a1e5de07 *DESCRIPTION
 8b54e5a89fbda3af5e077053d40bec76 *NAMESPACE
-159cc8ce0ee2a17d9b7c7c31d6eaeab1 *R/larf.R
+b10c5cb5aa24350190658627c160f796 *R/larf.R
 da99580f15dc22685e3ef25565784318 *data/c401k.RData
-6e957b2ef2462bdbb9d203676eb7102b *inst/doc/LARF.pdf
-6646bef3b6eea52eb882fd96384324f0 *man/c401k.Rd
-4cc4d3589d7e2708750a5dd78f2d7a10 *man/larf.Rd
+fb9abc49918e812f0198ec78e90f20b2 *man/c401k.Rd
+320f1e4c8b97aa3c33c1a035b0880a8a *man/larf.Rd
+0090f36813401a3c006ec4e28b30687a *man/larf.fit.Rd
+4aa1b7e95a9636f92b98b2fce48d051f *man/larf.predict.Rd
+ca59925b462245ad7cbd559966f9b1bc *man/print.larf.Rd
+f0826ca0620367eff0947038e18d300b *man/summary.larf.Rd
+858c32d1e6d90d28e95d2b5c300047a0 *man/vcov.larf.Rd
