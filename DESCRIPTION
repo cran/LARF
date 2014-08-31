@@ -1,14 +1,14 @@
 Package: LARF
 Type: Package
-Title: LARF: Local Average Response Functions for Estimating Treatment
-        Effects
-Version: 1.1
-Date: 2013-09-05
+Title: Local Average Response Functions for Instrumental Variable
+        Estimation of Treatment Effects
+Version: 1.2
+Date: 2014-08-31
 Author: Weihua An and Xuefu Wang, Indiana University Bloomington
 Maintainer: Weihua An <weihuaan@indiana.edu>
-Description: Provides instrumental variable estimation of treatment effects when the treatment variable is binary. Applicable to both binary and continuous outcomes.
+Description: Provides instrumental variable estimation of treatment effects when both the endogenous treatment and its instrument are binary. Applicable to both binary and continuous outcomes.
 License: GPL-3
-Packaged: 2013-09-12 15:06:18 UTC; weihuaan
+Packaged: 2014-09-28 17:11:00 UTC; Weihua
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-09-12 17:51:55
+Date/Publication: 2014-09-28 20:43:43

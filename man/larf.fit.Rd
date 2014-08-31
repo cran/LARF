@@ -1,68 +1,30 @@
 \name{larf.fit}
 \alias{larf.fit}
 
-\title{Local Average Response Functions}
+\title{Fitting the Local Average Response Function}
 \description{
-Provides instrumental variable estimation of treatment effects for compliers when both the treatment variable and instrumental variable are binary.
+It is the work-horse function for its high-level interface \code{larf}.
 }
 \usage{
-larf.fit(Y, X, D, Z, outcome, method, discrete)
+larf.fit(Y, X, D, Z, method, AME, optimizer, zProb)
 }
 
 \arguments{
-  \item{Y}{A vector containing the outcome variable. It can be either binary or continuous.}
-  \item{X}{A matrix containing the covariates.}
-  \item{D}{A vector containing the binary treatment variable.}
-  \item{Z}{A vector containing the binary instrumental variable, for example, the treatment assignment.}
-  \item{outcome}{A character string for the type of outcomes. The default is "binary". The other option is "continuous".}
-  \item{method}{A character string for the estimation method to be used for binary outcome models. The default is "NLS", standing for nonlinear least squares. Maximum likelihood method (MLE) may be added in future versions.}
-  \item{discrete}{A logical flag for whether marginal effects should be reported. The default is TRUE. This option is valid only for binary outcomes.}
-}
-\details{
-\code{\link{larf.fit}} is the work-horse function for its high-level interface \code{larf}. A set of standard methods (including \code{print}, \code{summary}, \code{coef}, \code{vcov}, \code{fitted}, \code{resid}, \code{predict}) can be used to extract the corresponding information from a \code{\link{larf}} object.
-
-The function provides instrumental variable estimation of treatment effects when both the treatment variable and instrumental variable are binary. First, pseudo weights are constructed from a probit regression of the instrumental variable on covariates. Then, the weights are used in the regression of the outcome on the treatment and covariates. When the outcome is binary, weighted nonlinear least squares method with a probit link is used. When the outcome is continuous, weighted least squares is used. More details of the methods can be found in Abadie (2003).
+  \item{Y}{a vector containing the outcome.}
+  \item{X}{a matrix containing the covariates excluding the treatment.}
+  \item{D}{a vector containing the binary treatment.}
+  \item{Z}{a vector containing the binary instrument for the endogenous treatment.}
+  \item{method}{the estimation method to be used. The default is ``LS", standing for least squares. ``ML", standing for maximum likelihood, is an alternative.}
+  \item{AME}{whether average marginal effects (AME) should be reported. The default is FALSE, in which case marginal effects at the means (MEM) are reported.}
+    \item{optimizer}{the optimization algorithm for the ML method. It should be one of ``Nelder-Mead", ``BFGS", ``CG", ``L-BFGS-B", ``SANN", or ``Brent". See \code{optim} in R for more detail.}
+  \item{zProb}{a vector containing the probability of receiving the treatment inducement (i.e., instrument = 1) that have been estimated by semiparametrical methods.}
 }
 
-\value{
-\item{coefficients}{Estimated coefficients for treatment and covariates.}
-\item{StdErr}{Standard errors of the estimated coefficients.}
-\item{MargEff}{Estimated marginal effects of treatment and covariates, available only for binary outcomes.}
-\item{MargStdErr}{Standard errors of the estimated marginal effects, available only for binary outcomes.}
-\item{vcov}{Variance covariance matrix between the parameters with the first entry being the treatment variable.}
-\item{fitted.values}{The predicted outcomes based on the estimated coefficients and the observed covariates. They are probabilities when the outcome is binary.}
-\item{residuals}{The differnece between the observed outcomes and the fitted values.}
-}
-
-\references{
-Abadie, Alberto. 2003. "Semiparametric Instrumental Variable Estimation of Treatment Response Models." \emph{Journal of Econometric} 113: 231-263.
-}
 \author{
-Weihua An and Xuefu Wang, Indiana University Bloomington
-}
-
-\note{
-We derived part of the code from the Matlab code written by Professor Alberto Abadie, available at \url{http://www.hks.harvard.edu/fs/aabadie/larf.html}.
+Weihua An and Xuefu Wang, Departments of Statistics and Sociology, Indiana University Bloomington
 }
 
 \seealso{
 \code{\link{larf}}, \code{\link{c401k}}
 }
 
-\examples{
-data(c401k)
-
-# Choose the first 500 units for a small example
-c401k <- c401k[1:500,]
-
-Y <- c401k$pira
-X <- as.matrix(c401k[c("inc", "incsq", "marr",  "male", "age", "agesq",  "fsize"  )])
-D <- c401k$p401k
-Z <- c401k$e401k
-
-# high-level interface
-est <- larf(Y~X, D, Z)
-
-# low-level interface
-est2 <- larf.fit(Y, X, D, Z)
-}

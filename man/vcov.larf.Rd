@@ -2,9 +2,9 @@
 \alias{vcov.larf}
 
 
-\title{Local Average Response Functions}
+\title{Variance Covariance Matrix of the Parameters in the Estimated LARF}
 \description{
-  Methods to display the variance covariance matrix of the estimated parameters for the regression fitted by \code{\link{larf}}.
+  Methods to display the variance covariance matrix of the model parameters estimated by \code{\link{larf}}.
 }
 
 \usage{
@@ -16,6 +16,9 @@
   \item{\dots}{currently not used.}
 }
 
+\author{
+Weihua An and Xuefu Wang, Departments of Statistics and Sociology, Indiana University Bloomington
+}
 
 \seealso{
 \code{\link{larf}}, \code{\link{larf.fit}}
