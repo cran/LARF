@@ -1,7 +1,5 @@
 #######################################
 ### LARF: Local Response Functions in R
-### Date: 201-08-08
-### Version 1.1
 #######################################
 
 ##############################
@@ -26,7 +24,7 @@ larf <- function(formula, treatment, instrument, data, method = "LS", AME = FALS
   est$call <-match.call()
   est$formula <- formula
 
-  return(est)  
+  return(est)
 }
 
 
@@ -43,7 +41,7 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
   n <- length(y)   
   
   outcome <- floor((colSums(y==1 | y==0))/n) 
-  
+
   # Get the weights kappa
   if ( is.null(zProb) ) {
   eqA <- glm(z ~ X - 1, family=binomial(probit))
@@ -51,7 +49,7 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
   Phi <- eqA$fitted
   } else {
     Phi <- zProb
-    lv <- z*(1-d)/Phi^2 - d*(1-z)/(1-Phi)^2
+    lv <- Z*(1-D)/Phi^2 - D*(1-Z)/(1-Phi)^2
   }
   
   nc_ratio <- rep(0,n)
@@ -76,7 +74,7 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
       while( dg > gtol & k <= 1000){
         b0 <- b1
         u <- y - pnorm(cbind(d,X)%*%b0) # The residual
-        g <- crossprod(cbind(d,X),diag(as.vector(kappa*dnorm(cbind(d,X)%*%b0)),n))
+        g <- t(cbind(d,X)*as.vector(kappa*dnorm(cbind(d,X)%*%b0)))
         delta <- step*solve(tcrossprod(g))%*%g%*%u # The Gauss-Newton Method
         b1 <- b0 + delta
         dg <- crossprod(delta,g)%*%crossprod(g,delta)
@@ -88,24 +86,24 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
         u <- y - pnorm(cbind(d,X)%*%b)
         
         dM_theta <- (cbind(d,X)%*%b)*dnorm(cbind(d,X)%*%b)*u+(dnorm(cbind(d,X)%*%b))^2
-        M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa*dM_theta),n))%*%cbind(d,X)
+        M_theta <- t(cbind(d,X)*as.vector(kappa*dM_theta))%*%cbind(d,X)
         
         derkappa <- rep(0,n)
         derkappa[z==1&d==0] <- 1/(Phi[z==1&d==0])^2
         derkappa[z==0&d==1] <- (-1)/(1-Phi[z==0&d==1])^2
         
-        M_gamma <- -crossprod(cbind(d,X),diag(as.vector(dnorm(cbind(d,X)%*%b)*u*matrix(derkappa)*dnorm(X%*%gamma)),n))%*%X
+        M_gamma <- -t(cbind(d,X)*as.vector(dnorm(cbind(d,X)%*%b)*u*matrix(derkappa)*dnorm(X%*%gamma)))%*%X
         
         lambda <- rep(0,n)
         lambda[z==0] <- (-1)*dnorm(X[z==0,]%*%gamma)/(1-pnorm(X[z==0,]%*%gamma))
         lambda[z==1] <- dnorm(X[z==1,]%*%gamma)/pnorm(X[z==1,]%*%gamma)
         
-        H_gamma <- t(X)%*%diag(lambda^2,n)%*%X
+        H_gamma <- t(X*lambda^2)%*%X
         
         # Get the variance
-        S_1 <- crossprod(cbind(d,X),diag(as.vector((dnorm(cbind(d,X)%*%b)*u*kappa)^2),n))%*%cbind(d,X)
+        S_1 <- t(cbind(d,X)*as.vector((dnorm(cbind(d,X)%*%b)*u*kappa)^2))%*%cbind(d,X)
         S_2 <- M_gamma%*%tcrossprod(solve(H_gamma),(M_gamma))
-        S_3 <- M_gamma%*%tcrossprod(solve(H_gamma),X)%*%diag(as.vector(lambda*kappa*(-u)*dnorm(cbind(d,X)%*%b)),n)%*%cbind(d,X)
+        S_3 <- t(t(M_gamma%*%tcrossprod(solve(H_gamma),X))*as.vector(lambda*kappa*(-u)*dnorm(cbind(d,X)%*%b)))%*%cbind(d,X)
         S <- S_1 + S_2 + S_3 + t(S_3)
         
         # The variance and SE
@@ -114,12 +112,12 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
       } else {                  # Get the SE using theorem 4.5
         u <- y - pnorm(cbind(d,X)%*%b)      
         dM_theta <- (cbind(d,X)%*%b)*dnorm(cbind(d,X)%*%b)*u+(dnorm(cbind(d,X)%*%b))^2
-        M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa*dM_theta),n))%*%cbind(d,X)
+        M_theta <- t(cbind(d,X)*as.vector(kappa*dM_theta))%*%cbind(d,X)
         
         # Get the variance
-        S_1 <- crossprod(cbind(d,X),diag(as.vector((dnorm(cbind(d,X)%*%b)*u*kappa)^2),n))%*%cbind(d,X)
-        S_2 <- crossprod(cbind(d,X),diag(as.vector((dnorm(cbind(d,X)%*%b)*u*lv*(z-Phi))^2),n))%*%cbind(d,X)
-        S_3 <- crossprod(cbind(d,X),diag(as.vector((dnorm(cbind(d,X)%*%b)*u)^2*kappa*lv*(z-Phi)),n))%*%cbind(d,X)
+        S_1 <- t(cbind(d,X)* as.vector((dnorm(cbind(d,X)%*%b)*u*kappa)^2))%*%cbind(d,X)
+        S_2 <- t(cbind(d,X)*as.vector((dnorm(cbind(d,X)%*%b)*u*lv*(Z-Phi))^2))%*%cbind(d,X)
+        S_3 <- t(cbind(d,X)*as.vector((dnorm(cbind(d,X)%*%b)*u)^2*kappa*lv*(Z-Phi)))%*%cbind(d,X)
         S <- S_1 + S_2 + S_3 + t(S_3)
         
         # The variance and SE
@@ -140,23 +138,23 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
         u <- pnorm(cbind(d,X)%*%b)
         r <- dnorm(cbind(d,X)%*%b)
         dM_theta <- -r*(y*(r+cbind(d,X)%*%b*u)/u^2 + (1-y)*(r-cbind(d,X)%*%b*(1-u))/(1-u^2))
-        M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa*dM_theta),n))%*%cbind(d,X)
+        M_theta <- t(cbind(d,X)*as.vector(kappa*dM_theta))%*%cbind(d,X)
         
         derkappa <- rep(0,n)
         derkappa[z==1&d==0] <- 1/(Phi[z==1&d==0])^2
         derkappa[z==0&d==1] <- (-1)/(1-Phi[z==0&d==1])^2
         
-        M_gamma <- crossprod(cbind(d,X),diag(as.vector((y*r/u-(1-y)*r/(1-u))*matrix(derkappa)*dnorm(X%*%gamma)),n))%*%X
+        M_gamma <- t(cbind(d,X)*as.vector((y*r/u-(1-y)*r/(1-u))*matrix(derkappa)*dnorm(X%*%gamma)))%*%X
         
         lambda <- rep(0,n)
         lambda[z==0] <- (-1)*dnorm(X[z==0,]%*%gamma)/(1-pnorm(X[z==0,]%*%gamma))
         lambda[z==1] <- dnorm(X[z==1,]%*%gamma)/pnorm(X[z==1,]%*%gamma)
         
-        H_gamma <- t(X)%*%diag(lambda^2,n)%*%X        
+        H_gamma <- t(X*lambda^2)%*%X        
       
-        S_1 <- crossprod(cbind(d,X),diag(as.vector(((y*r/u-(1-y)*r/(1-u))*kappa)^2),n))%*%cbind(d,X)
+        S_1 <- t(cbind(d,X)*as.vector(((y*r/u-(1-y)*r/(1-u))*kappa)^2))%*%cbind(d,X)
         S_2 <- M_gamma%*%tcrossprod(solve(H_gamma),(M_gamma))
-        S_3 <- M_gamma%*%tcrossprod(solve(H_gamma),X)%*%diag(as.vector(lambda*kappa*(y*r/u-(1-y)*r/(1-u))),n)%*%cbind(d,X)
+        S_3 <- t(t(M_gamma%*%tcrossprod(solve(H_gamma),X))*as.vector(lambda*kappa*(y*r/u-(1-y)*r/(1-u))))%*%cbind(d,X)
         S <- S_1 + S_2 + S_3 + t(S_3)
         
         # The variance and SE
@@ -166,11 +164,11 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
         u <- pnorm(cbind(d,X)%*%b)
         r <- dnorm(cbind(d,X)%*%b)
         dM_theta <- -r*(y*(r+cbind(d,X)%*%b*u)/u^2 + (1-y)*(r-cbind(d,X)%*%b*(1-u))/(1-u^2))
-        M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa*dM_theta),n))%*%cbind(d,X)
+        M_theta <- t(cbind(d,X)*as.vector(kappa*dM_theta))%*%cbind(d,X)
         
-        S_1 <- crossprod(cbind(d,X),diag(as.vector(((y*r/u-(1-y)*r/(1-u))*kappa)^2),n))%*%cbind(d,X)
-        S_2 <- crossprod(cbind(d,X),diag(as.vector(((y*r/u-(1-y)*r/(1-u))*lv*(z-Phi))^2),n))%*%cbind(d,X)
-        S_3 <- crossprod(cbind(d,X),diag(as.vector((y*r/u-(1-y)*r/(1-u))^2*kappa*lv*(z-Phi)),n))%*%cbind(d,X)
+        S_1 <- t(cbind(d,X)*as.vector(((y*r/u-(1-y)*r/(1-u))*kappa)^2))%*%cbind(d,X)
+        S_2 <- t(cbind(d,X)*as.vector(((y*r/u-(1-y)*r/(1-u))*lv*(Z-Phi))^2))%*%cbind(d,X)
+        S_3 <- t(cbind(d,X)*as.vector((y*r/u-(1-y)*r/(1-u))^2*kappa*lv*(Z-Phi)))%*%cbind(d,X)
         S <- S_1 + S_2 + S_3 + t(S_3)
         
         # The variance and SE
@@ -183,8 +181,9 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
     cat <- floor((colSums(cbind(d,X)==1 | cbind(d,X)==0))/n) 
 
     if (AME == 0) {    
-      wbar <- apply(diag(kappa,n)%*%cbind(d,X),2,mean) / mean(kappa)
-      db <- as.vector(dnorm(wbar%*%b))*b      
+      wbar <- apply(kappa*cbind(d,X),2,mean) / mean(kappa)
+      db <- as.vector(dnorm(wbar%*%b))*b 
+      # P781 in Green
       G <- as.vector(dnorm(wbar%*%b))*(diag(dim(cbind(d,X))[2])-as.vector(wbar%*%b)*b%*%wbar)      
       dV <- G%*%V%*%t(G)
       dse <- as.matrix(sqrt(diag(dV)))  
@@ -264,39 +263,43 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
     return(out)   
   } # End of the binary LARF
   
-  
-  
+    
   # For a continuous outcome
   if(outcome != 1) {
     
     if (method == "LS") {     # WLS  of the coefficients
-      DK <- diag(as.vector(kappa), n)
-      b1 <- solve(crossprod(cbind(d,X), DK) %*% cbind(d,X)) %*% crossprod(cbind(d,X), DK) %*% y
-      b<- b1
+      # b1 <- solve(crossprod(cbind(d,X), DK) %*% cbind(d,X)) %*% crossprod(cbind(d,X), DK) %*% y
+      b1 <- solve ( t(cbind(d,X) * kappa) %*% cbind(d,X)) %*% t(cbind(d,X) * kappa)  %*% y
+      b <- b1
       
       if ( is.null(zProb) ) {   # Get the SE using theorem 4.2
         u <- y-(cbind(d,X)%*%b)        
-        M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X)
+        # M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X)
+        M_theta <- t(cbind(d,X) * kappa)%*%cbind(d,X)
         
         derkappa <- replicate(n,0)
         derkappa[z==1&d==0] <- 1/(Phi[z==1&d==0])^2
         derkappa[z==0&d==1] <- (-1)/(1-Phi[z==0&d==1])^2
         
-        M_gamma <- -crossprod(cbind(d,X),diag(as.vector(u*matrix(derkappa)*dnorm(X%*%gamma)),n))%*%X
+        #M_gamma <- -crossprod(cbind(d,X),diag(as.vector(u*matrix(derkappa)*dnorm(X%*%gamma)),n))%*%X
+        M_gamma <- -t( cbind(d,X) * as.vector((u*matrix(derkappa)*dnorm(X%*%gamma))) ) %*% X        
         
         lambda <- replicate(n,0)
         lambda[z==0] <- (-1)*dnorm(X[z==0,]%*%gamma)/(1-pnorm(X[z==0,]%*%gamma))
         lambda[z==1] <- dnorm(X[z==1,]%*%gamma)/pnorm(X[z==1,]%*%gamma)
-        H_gamma <- crossprod(X,diag(lambda^2,n))%*%X
+        #H_gamma <- crossprod(X,diag(lambda^2,n))%*%X
+        H_gamma <- t(X *lambda^2) %*% X
         
         # 1st part of "a^2+b^2+2a*b" variance
-        S_1 <- crossprod(cbind(d,X),diag(as.vector((u*kappa)^2),n))%*%cbind(d,X)
+        #S_1 <- crossprod(cbind(d,X),diag(as.vector((u*kappa)^2),n))%*%cbind(d,X)
+        S_1 <- t(cbind(d,X)*as.vector((u*kappa)^2))%*%cbind(d,X)
         
         # 2nd part
         S_2 <- M_gamma%*%tcrossprod(solve(H_gamma),M_gamma)
         
         # 3rd part, AKA, the a*b part
-        S_3 <- M_gamma%*%tcrossprod(solve(H_gamma),X)%*%diag(as.vector(lambda*kappa*(-u)),n)%*%cbind(d,X)
+        #S_3 <- M_gamma%*%tcrossprod(solve(H_gamma),X)%*%diag(as.vector(lambda*kappa*(-u)),n)%*%cbind(d,X)
+        S_3 <- t(t(M_gamma%*%tcrossprod(solve(H_gamma),X))*as.vector(lambda*kappa*(-u))) %*%cbind(d,X)
         
         # Add them togather
         S <- S_1 + S_2 + S_3 + t(S_3)
@@ -306,11 +309,16 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
         se <- sqrt(diag(V))
       } else {  # Get the SE using theorem 4.5
         u <- y-(cbind(d,X)%*%b)      
-        M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X) 
+        #M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X) 
+        M_theta <- t(cbind(d,X) * kappa)%*%cbind(d,X) 
         
-        S_1 <- crossprod(cbind(d,X),diag(as.vector((u*kappa)^2),n))%*%cbind(d,X)
-        S_2 <- crossprod(cbind(d,X),diag(as.vector((u*lv*(z-Phi))^2),n))%*%cbind(d,X)
-        S_3 <- crossprod(cbind(d,X),diag(as.vector(u^2*kappa*lv*(z-Phi)),n))%*%cbind(d,X)
+        #S_1 <- crossprod(cbind(d,X),diag(as.vector((u*kappa)^2),n))%*%cbind(d,X)
+        #S_2 <- crossprod(cbind(d,X),diag(as.vector((u*lv*(Z-Phi))^2),n))%*%cbind(d,X)
+        #S_3 <- crossprod(cbind(d,X),diag(as.vector(u^2*kappa*lv*(Z-Phi)),n))%*%cbind(d,X)
+        
+        S_1 <- t(cbind(d,X)*as.vector((u*kappa)^2))%*%cbind(d,X)
+        S_2 <- t(cbind(d,X)*as.vector((u*lv*(Z-Phi))^2))%*%cbind(d,X)
+        S_3 <- t(cbind(d,X)*as.vector(u^2*kappa*lv*(Z-Phi)))%*%cbind(d,X)
         S <- S_1 + S_2 + S_3 + t(S_3)               
         
         # The variance and SE
@@ -320,18 +328,18 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
     }
     
     if(method=="ML"){      
-      targett<-function(para){        
+      targetB<-function(para){        
          sd<-para[length(para)]
          b<-para[1:(length(para)-1)]
          pb <- dnorm(y-cbind(d,X)%*%b,sd)
          pb[pb==0] <- .Machine$double.xmin
          -sum(kappa*log(pb))        
       }
+      #DK <- diag(as.vector(kappa), n)
+      #theta <- as.vector(solve(crossprod(cbind(d,X), DK) %*% cbind(d,X)) %*% crossprod(cbind(d,X), DK) %*% y)
+      theta <- as.vector(solve ( t(cbind(d,X) * kappa) %*% cbind(d,X)) %*% t(cbind(d,X) * kappa)  %*% y)
       
-      DK <- diag(as.vector(kappa), n)
-      theta <- as.vector(solve(crossprod(cbind(d,X), DK) %*% cbind(d,X)) %*% crossprod(cbind(d,X), DK) %*% y)
-      
-      MLEparameters<-optim(c(theta,sd(y)), targett, method = optimizer, hessian = FALSE, control=list(maxit=1e8,abstol=0.1e-8))$par
+      MLEparameters<-optim(c(theta,sd(y)), targetB, method = optimizer, hessian = FALSE, control=list(maxit=1e8,abstol=0.1e-8))$par
       b2 <- matrix(MLEparameters[1:(length(MLEparameters)-1)])
       b <- b2
       
@@ -340,22 +348,25 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
       
       if ( is.null(zProb) ) {   # Get the SE using theorem 4.2
         u <- y-cbind(d,X)%*%b
-        M_theta <- -crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X)
+        #M_theta <- -crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X)/sd^2
+        M_theta <- -t(cbind(d,X) * kappa)%*%cbind(d,X)/sd^2
         
         derkappa <- replicate(n,0)
         derkappa[z==1&d==0] <- 1/(Phi[z==1&d==0])^2
         derkappa[z==0&d==1] <- (-1)/(1-Phi[z==0&d==1])^2
         
-        M_gamma <- crossprod(cbind(d,X),diag(as.vector(u*matrix(derkappa)*dnorm(X%*%gamma)),n))%*%X
+        #M_gamma <- -crossprod(cbind(d,X),diag(as.vector(u*matrix(derkappa)*dnorm(X%*%gamma)),n))%*%X
+        M_gamma <- t(cbind(d,X)*as.vector(u*matrix(derkappa)*dnorm(X%*%gamma)))%*%X/sd^2
         
         lambda <- replicate(n,0)
         lambda[z==0] <- (-1)*dnorm(X[z==0,]%*%gamma)/(1-pnorm(X[z==0,]%*%gamma))
         lambda[z==1] <- dnorm(X[z==1,]%*%gamma)/pnorm(X[z==1,]%*%gamma)
-        H_gamma <- crossprod(X,diag(lambda^2,n))%*%X
+        #H_gamma <- crossprod(X,diag(lambda^2,n))%*%X
+        H_gamma <- t(X*lambda^2)%*%X
         
-        S_1 <- crossprod(cbind(d,X),diag(as.vector((u*kappa)^2),n))%*%cbind(d,X)
+        S_1 <- t(cbind(d,X)*as.vector((u*kappa)^2))%*%cbind(d,X)/sd^4
         S_2 <- M_gamma%*%tcrossprod(solve(H_gamma),M_gamma)
-        S_3 <- M_gamma%*%tcrossprod(solve(H_gamma),X)%*%diag(as.vector(lambda*kappa*u),n)%*%cbind(d,X)
+        S_3 <- t(t(M_gamma%*%tcrossprod(solve(H_gamma),X))*as.vector(lambda*kappa*u))%*%cbind(d,X)/sd^2
         S <- S_1 + S_2 + S_3 + t(S_3)
         
         # The variance and SE
@@ -363,11 +374,12 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
         se <- sqrt(diag(V))         
       }  else{  # Get the SE using theorem 4.5. In fact, the sd's can be ignored.
         u <- y-cbind(d,X)%*%b
-        M_theta <- -crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X)
+        #M_theta <- -crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X)/sd^2
+        M_theta <- -t(cbind(d,X) * kappa)%*%cbind(d,X)/sd^2
         
-        S_1 <- crossprod(cbind(d,X),diag(as.vector((u*kappa)^2),n))%*%cbind(d,X)
-        S_2 <- crossprod(cbind(d,X),diag(as.vector((u*lv*(z-Phi))^2),n))%*%cbind(d,X)
-        S_3 <- crossprod(cbind(d,X),diag(as.vector(u^2*kappa*lv*(z-Phi)),n))%*%cbind(d,X)
+        S_1 <- t(cbind(d,X)*as.vector((u*kappa)^2))%*%cbind(d,X)/sd^4
+        S_2 <- t(cbind(d,X)*as.vector((u*lv*(Z-Phi))^2))%*%cbind(d,X)/sd^4
+        S_3 <- t(cbind(d,X)*as.vector(u^2*kappa*lv*(Z-Phi)))%*%cbind(d,X)/sd^4
         S <- S_1 + S_2 + S_3 + t(S_3)               
         
         # The variance and SE

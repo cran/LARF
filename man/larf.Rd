@@ -41,12 +41,12 @@ The function provides instrumental variable estimation of treatment effects when
 Abadie, Alberto. 2003. "Semiparametric Instrumental Variable Estimation of Treatment Response Models." \emph{Journal of Econometrics} 113: 231-263.
 }
 \author{
-Weihua An, Departments of Statistics and Sociology, Indiana University Bloomington, \email{weihuaan@indiana.edu},\url{http://mypage.iu.edu/~weihuaan/}. \cr
+Weihua An, Departments of Statistics and Sociology, Indiana University Bloomington, \email{weihuaan@indiana.edu}. \cr
 Xuefu Wang, Department of Statistics, Indiana University Bloomington, \email{wangxuef@umail.iu.edu}.
 }
 
 \note{
-We derived part of the code from the Matlab code written by Professor Alberto Abadie, available at \url{http://www.hks.harvard.edu/fs/aabadie/larf.html}.
+We derived part of the code from the Matlab code written by Professor Alberto Abadie, available at \url{http://www.hks.harvard.edu/fs/aabadie/larf.html}. We thank Onur Altindag for a helpful suggestion on improving the computation for large data.
 }
 
 \seealso{
