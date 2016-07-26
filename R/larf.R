@@ -6,17 +6,27 @@
 ### The high-interface
 ##############################
 
-larf <- function(formula, treatment, instrument, data, method = "LS", AME = FALSE, optimizer = "Nelder-Mead", zProb = NULL ) {
+larf <- function(formula, treatment = NULL, instrument = NULL, data, method = "LS", AME = FALSE, optimizer = "Nelder-Mead", zProb = NULL ) {
   
   ## set up a model.frame
   if(missing(data)) data <- environment(formula)
-  mf <- model.frame(formula = formula, data = data)
   
-  ## extract response, covaraites, treatment, and instrument
-  Y <- model.response(mf)
-  X <- model.matrix(attr(mf, "terms"), data = mf)
-  D <- treatment
-  Z <- instrument
+  if (!is.null(treatment)) {
+    mf <- model.frame(formula = formula, data = data)
+    ## extract response, covaraites, treatment, and instrument
+    Y <- model.response(mf)
+    X <- model.matrix(attr(mf, "terms"), data = mf)
+    D <- treatment
+    Z <- instrument
+  }
+  else {  
+    f <- Formula::Formula(formula)
+    formula <- f
+    Y <- Formula::model.part(f, data = data, lhs = 1)[,1]
+    D <- Formula::model.part(f, data = data, lhs = 1)[,2]
+    X <- model.matrix(f, data = data, rhs = 1)
+    Z <- model.matrix(f, data = data, rhs = 2)[,-1]       
+  }
   
   ## call default interface
   est <- larf.fit(Y, X, D, Z, method, AME, optimizer, zProb) 
@@ -32,7 +42,7 @@ larf <- function(formula, treatment, instrument, data, method = "LS", AME = FALS
 ### Function to implement LARF
 ##############################
 
-larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb ) {
+larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb) {
   y <- as.matrix(Y)
   X <- as.matrix(X)
   d <- as.matrix(D)

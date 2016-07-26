@@ -21,7 +21,7 @@ larf.fit(Y, X, D, Z, method, AME, optimizer, zProb)
 }
 
 \author{
-Weihua An and Xuefu Wang, Departments of Statistics and Sociology, Indiana University Bloomington
+Weihua An and Xuefu Wang, Departments of Sociology and Statistics, Indiana University Bloomington
 }
 
 \seealso{

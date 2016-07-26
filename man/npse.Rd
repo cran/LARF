@@ -5,7 +5,7 @@
 \description{
 Use the optimal order of power series of covariates to predict outcome. The optimal order of power series is determined by cross-validation.}
 \usage{
-npse(formula, order = 3, m = 10, seed = 178)
+npse(formula, order = 3, m = 10, seed = NULL)
 }
 
 \arguments{
@@ -24,13 +24,14 @@ This function predicts the outcome based on the optimal order of covariates powe
 \item{Lambda}{The optimal order of power series determined by cross-validation.}
 \item{Data.opt}{The data including \code{z} and the optimal covariates power series.}
 \item{CV.Res}{The residual sum of squares of the cross-validations.}
+\item{seed}{The random seed.}
 }
 
 \references{
 Abadie, Alberto. 2003. "Semiparametric Instrumental Variable Estimation of Treatment Response Models." \emph{Journal of Econometrics} 113: 231-263.
 }
 \author{
-Weihua An, Departments of Statistics and Sociology, Indiana University Bloomington, \email{weihuaan@indiana.edu}. \cr
+Weihua An, Departments of Sociology and Statistics, Indiana University Bloomington, \email{weihuaan@indiana.edu}. \cr
 Xuefu Wang, Department of Statistics, Indiana University Bloomington, \email{wangxuef@umail.iu.edu}.
 }
 

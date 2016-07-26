@@ -3,17 +3,15 @@
 
 \title{Local Average Response Functions for Instrumental Variable Estimation of Treatment Effects}
 \description{
-The function provides instrumental variable estimation of treatment effects when both the endogenous treatment and its instrument are binary. Applicable to both binary and continuous outcomes. If you use this package, pleae cite it as follows. \cr
+The function provides instrumental variable estimation of treatment effects when both the endogenous treatment and its instrument are binary. Applicable to both binary and continuous outcomes.}
 
-An, Weihua and Xuefu Wang. 2013. ``LARF: Local Average Response Functions for Instrumental Variable Estimation of Treatment Effects." An R package available at CRAN. \url{http://cran.r-project.org/web/packages/LARF/index.html}.
-}
 \usage{
 larf(formula, treatment, instrument, data, method = "LS",  
      AME = FALSE, optimizer = "Nelder-Mead", zProb = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{formula}{specification of the outcome model in the form like either \code{y ~ x1 + x2} or \code{y ~ X} where \code{X} is a matrix containing all the covariates excluding the treatment.}
+  \item{formula}{specification of the outcome model in the form like either \code{y ~ x1 + x2} or \code{y ~ X} where \code{X} is a matrix containing all the covariates excluding the treatment. Also support multi-part formulas (Zeileis and Croissant, 2010). For example, \code{y + d ~ x1 + x2 | z}, where \code{d} represents the treatment and \code{z} the instrument.}
   \item{treatment}{A vector containing the binary treatment.}
   \item{instrument}{A vector containing the binary instrument for the endogenous treatment.}
   \item{data}{an optional data frame. If unspecified, the data will be taken from the working environment.}
@@ -38,15 +36,17 @@ The function provides instrumental variable estimation of treatment effects when
 }
 
 \references{
-Abadie, Alberto. 2003. "Semiparametric Instrumental Variable Estimation of Treatment Response Models." \emph{Journal of Econometrics} 113: 231-263.
+Abadie, Alberto. 2003. "Semiparametric Instrumental Variable Estimation of Treatment Response Models." \emph{Journal of Econometrics} 113: 231-263. \cr
+An, Weihua and Xuefu Wang. 2016. "LARF: Instrumental Variable Estimation of Causal Effects through Local Average Response Functions." \emph{Journal of Statistical Software} 71(1): 1-13.  \cr
+Zeileis, Achim and Yves Croissant. 2010. "Extended Model Formulas in R: Multiple Parts and Multiple Responses." \emph{Journal of Statistical Software} 34(1): 1-13. \url{ http://www.jstatsoft.org/v34/i01/}.
 }
 \author{
-Weihua An, Departments of Statistics and Sociology, Indiana University Bloomington, \email{weihuaan@indiana.edu}. \cr
+Weihua An, Departments of Sociology and Statistics, Indiana University Bloomington, \email{weihuaan@indiana.edu}. \cr
 Xuefu Wang, Department of Statistics, Indiana University Bloomington, \email{wangxuef@umail.iu.edu}.
 }
 
 \note{
-We derived part of the code from the Matlab code written by Professor Alberto Abadie, available at \url{http://www.hks.harvard.edu/fs/aabadie/larf.html}. We thank Onur Altindag for a helpful suggestion on improving the computation for large data.
+We derived part of the code from the Matlab code written by Professor Alberto Abadie, available at \url{http://www.hks.harvard.edu/fs/aabadie/larf.html}. We thank Onur Altindag and Behzad Kianian for helpful suggestions on improving the computation.
 }
 
 \seealso{

@@ -2,7 +2,7 @@
 #############################################
 #Modifying the original cross validation function to fit our purpose#
 #The original function forces R to display CV results from each step along with the graphic#
-cvlm <-function (form.lm, data, m=10, seed = 178) {
+cvlm <-function (form.lm, data, m=10, seed = NULL) {
   
   df <- data.frame(data)
   
@@ -24,8 +24,8 @@ cvlm <-function (form.lm, data, m=10, seed = 178) {
   df[, "Predicted"] <- predict(df.lm)
   df[, "cvpred"] <- numeric(n)
   yval <- mf[, ynam]
-  if (!is.null(seed)) 
-    set.seed(seed) 
+  if (is.null(seed)) {seed = 178} 
+  set.seed(seed) 
   n <- dim(df)[1]
   rand <- sample(n)%%m + 1
   foldnum <- sort(unique(rand))
@@ -43,7 +43,7 @@ cvlm <-function (form.lm, data, m=10, seed = 178) {
   sumdf <- sum(!is.na(df[, "Predicted"])) - length(xcolumns)
   sumres <- sumss/sumdf
   df <- sumdf
-  outcv <- list(sumres = sumres, df = df, m = m)
+  outcv <- list(sumres = sumres, df = df, m = m, seed= seed)
 }
 #End of the modification### 
 
@@ -70,7 +70,7 @@ Generate.Powers <- function(X, lambda){
 }
 
 ### The main power series function
-npse <- function(formula, order = 3, m = 10, seed = 178){
+npse <- function(formula, order = 3, m = 10, seed = NULL){
   
   ## extract response, covaraites, treatment, and instrument
   mf <- model.frame(formula = formula)
@@ -86,7 +86,7 @@ npse <- function(formula, order = 3, m = 10, seed = 178){
     
     #Starting cross validation#
     Power.Regression <- lm(Z ~ .,data=as.data.frame(Sorted.Full.Data))    
-    Power.CV <- cvlm(form.lm=Power.Regression, data=Sorted.Full.Data, m=m)
+    Power.CV <- cvlm(form.lm=Power.Regression, data=Sorted.Full.Data, m=m, seed)
   
     #Storing the residuals# 
     CV.Residuals[i] <- Power.CV$sumres
@@ -98,6 +98,6 @@ npse <- function(formula, order = 3, m = 10, seed = 178){
   Data.Optimum<-Generate.Powers(X, Lambda.Optimum)
   TaoHat <- lm(Z ~ .,data=as.data.frame(Data.Optimum))$fitted.values
   
-  cvout <- list(fitted = TaoHat, Lambda = Lambda.Optimum, Data.opt = Data.Optimum, CV.Res = CV.Residuals)
+  cvout <- list(fitted = TaoHat, Lambda = Lambda.Optimum, Data.opt = Data.Optimum, CV.Res = CV.Residuals, seed= seed)
   return(cvout)
 }
